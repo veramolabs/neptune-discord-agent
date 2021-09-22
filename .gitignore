@@ -1,0 +1,6 @@
+build
+node_modules
+database.sqlite
+db
+.DS_Store
+.idea/

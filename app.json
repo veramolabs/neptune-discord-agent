@@ -1,0 +1,34 @@
+{
+    "name": "Veramo Agent",
+    "description": "Minimal deployment of @veramo/cli agent server to Heroku",
+    "repository": "https://github.com/uport-project/veramo-agent-deploy",
+    "keywords": [
+      "node",
+      "veramo",
+      "identity",
+      "verifiable-credentials"
+    ],
+    "addons": ["heroku-postgresql:hobby-dev"],
+    "env": {
+      "BASE_URL": {
+        "description": "The url for which your DID will be based on",
+        "value": "https://APP_NAME.herokuapp.com"
+      },
+      "API_KEY": {
+        "description": "A secret key for verifying requests",
+        "generator": "secret"
+      },
+      "SECRET_KEY": {
+        "description": "Secret key for database encryption",
+        "generator": "secret"
+      },
+      "AGENT_PATH": {
+        "description": "The path where the agent will be served from",
+        "value": "/agent"
+      },
+      "MESSAGING_PATH": {
+        "description": "The messaging endpoint for your agent",
+        "value": "/messaging"
+      }
+    }
+  }
