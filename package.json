@@ -7,9 +7,22 @@
   "license": "Apache-2.0",
   "scripts": {
     "start": "NODE_ENV=production yarn veramo server --config=./config/agent.yml",
-    "dev": "yarn veramo server --config=./config/agent-local.yml"
+    "dev": "yarn veramo server --config=./config/agent-local.yml",
+    "register-commands": "node ./build/discord/register-commands",
+    "build": "tsc",
+    "build:watch": "tsc -b --watch"
   },
   "dependencies": {
-    "@veramo/cli": "3.0.0"
+    "@discordjs/rest": "^0.1.0-canary.0",
+    "@veramo/cli": "3.0.0",
+    "discord-api-types": "^0.23.1",
+    "discord.js": "^13.1.0",
+    "dotenv": "^10.0.0"
+  },
+  "devDependencies": {
+    "@types/debug": "^4.1.7",
+    "@types/node-fetch": "2.5.12",
+    "express": "^4.17.1",
+    "typescript": "^4.4.3"
   }
 }

@@ -4,3 +4,4 @@ database.sqlite
 db
 .DS_Store
 .idea/
+.env

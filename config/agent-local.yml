@@ -139,6 +139,10 @@ server:
           baseUrl:
             $ref: /constants/baseUrl
           messagingServiceEndpoint: /messaging
+    - $require: "./build/discord/bot?t=function#init"
+      $args:
+        - agent:
+            $ref: /agent
 
 # Message handler plugin
 messageHandler:
