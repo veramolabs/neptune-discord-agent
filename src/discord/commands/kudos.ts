@@ -46,11 +46,18 @@ module.exports = {
       .setFooter(fromName, fromAvatar)
 
     try {
+      await to?.send({
+        content: 'You received kudos',
+        embeds: [exampleEmbed]
+      })
     } catch (e) {
-      console.dir(e, { depth: 10 })
+      //
     }
+
     await interaction.reply({
       embeds: [exampleEmbed],
     })
+
+
   },
 } as CustomCommandHandler
