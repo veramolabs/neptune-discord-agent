@@ -8,6 +8,7 @@
   "scripts": {
     "start": "NODE_ENV=production yarn veramo server --config=./config/agent.yml",
     "dev": "yarn veramo server --config=./config/agent-local.yml",
+    "prettier": "prettier --write '{src, !build}/**/*.{ts,js,json,md,yml}'",
     "register-commands": "node ./build/discord/register-commands",
     "build": "tsc",
     "build:watch": "tsc -b --watch"
@@ -23,6 +24,14 @@
     "@types/debug": "^4.1.7",
     "@types/node-fetch": "2.5.12",
     "express": "^4.17.1",
+    "husky": "^7.0.2",
+    "prettier": "^2.4.1",
     "typescript": "^4.4.3"
+  },
+  "husky": {
+    "hooks": {
+      "pre-commit": "pretty-quick --staged",
+      "commit-msg": "commitlint -E HUSKY_GIT_PARAMS"
+    }
   }
 }
