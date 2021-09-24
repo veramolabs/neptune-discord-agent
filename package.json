@@ -9,7 +9,7 @@
     "start": "NODE_ENV=production yarn veramo server --config=./config/agent.yml",
     "dev": "yarn veramo server --config=./config/agent-local.yml",
     "prettier": "prettier --write '{src, !build}/**/*.{ts,js,json,md,yml}'",
-    "register-commands": "node ./build/discord/register-commands",
+    "register-commands": "rm -rf ./build && yarn build && node ./build/discord/register-commands",
     "build": "tsc",
     "build:watch": "tsc -b --watch"
   },
