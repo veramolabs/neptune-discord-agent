@@ -1,6 +1,6 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { CommandInteraction, MessageEmbed } from 'discord.js'
-import { CustomCommandHandler } from '../types'
+import { Channel, CommandInteraction, Guild, MessageEmbed } from 'discord.js'
+import { CommandHandler, ConfiguredAgent } from '../types'
 import Debug from 'debug'
 
 const debug = Debug('discord:kudos')
@@ -15,49 +15,55 @@ module.exports = {
     .addStringOption((option) =>
       option.setName('kudos').setDescription('Ex: For being so awesome!').setRequired(true),
     ),
-  async execute(interaction: CommandInteraction, agent: any) {
-    const from = interaction.member?.user
+  async execute(interaction: CommandInteraction, agent: ConfiguredAgent) {
+    // console.dir(interaction, { depth: 10 })
 
-    console.dir(from, { depth: 10 })
+    if (!interaction.inGuild()) return;
 
-    let fromName = ''
-    let fromAvatar = ''
-    let toName = ''
-    let toAvatar = ''
-    if (from) {
-      fromAvatar = interaction.client.users.cache.get(from.id)?.displayAvatarURL() || ''
-      fromName = interaction.client.users.cache.get(from.id)?.username || ''
+    const { user, client, channelId, guildId } = interaction
+    const channel = await client.channels.fetch(channelId)
+    const guild = client.guilds.cache.get(guildId) as Guild
+    const recipient = interaction.options.getUser('to')
+    const kudos = interaction.options.getString('kudos')
+
+    if (!recipient) {
+      return await interaction.reply('Who are you thanking?')
     }
 
-    const to = interaction.options.getUser('to')
-    if (to) {
-      toAvatar = to.displayAvatarURL()
-      toName = to.username
+    if (!kudos) {
+      return await interaction.reply('Why are you thanking?')
     }
-    debug(interaction.options.getUser('to'))
-    debug(interaction.options.getString('kudos'))
-    const exampleEmbed = new MessageEmbed()
+
+    const publicEmbed = new MessageEmbed()
       .setColor('#73C394')
-      .setTitle('🏆 Kudos to ' + toName)
-      // .setURL('https://discord.js.org/')
-      .setDescription(interaction.options.getString('kudos') as string)
-      .setThumbnail(toAvatar)
+      .setAuthor(user.username, user.displayAvatarURL())
+      .setTitle('🏆 Kudos to ' + recipient.username)
+      .setDescription(kudos)
+      .setThumbnail(recipient.displayAvatarURL())
+
+    const privateEmbed = new MessageEmbed()
+      .setColor('#73C394')
+      .setAuthor(user.username, user.displayAvatarURL())
+      .setTitle('🏆 Kudos to ' + recipient.username)
+      .setDescription(kudos)
+      .setThumbnail(recipient.displayAvatarURL())
+      //@ts-ignore
+      .setFooter(`${guild.name} #${channel?.name}`, guild.iconURL({format: 'png'}) || '')
       .setTimestamp()
-      .setFooter(fromName, fromAvatar)
 
     try {
-      await to?.send({
+      await recipient.send({
         content: 'You received kudos',
-        embeds: [exampleEmbed]
+        embeds: [privateEmbed]
       })
     } catch (e) {
       //
     }
 
     await interaction.reply({
-      embeds: [exampleEmbed],
+      embeds: [publicEmbed],
     })
 
 
   },
-} as CustomCommandHandler
+} as CommandHandler

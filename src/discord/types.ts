@@ -1,6 +1,9 @@
 import { CommandInteraction } from 'discord.js'
+import { TAgent, IDIDManager, IResolver} from '@veramo/core'
 
-export interface CustomCommandHandler {
+export type ConfiguredAgent = TAgent<IDIDManager & IResolver>
+
+export interface CommandHandler {
   data: any
-  execute: (interaction: CommandInteraction, agent: any) => Promise<any>
+  execute: (interaction: CommandInteraction, agent: ConfiguredAgent) => Promise<any>
 }

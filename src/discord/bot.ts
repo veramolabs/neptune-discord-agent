@@ -5,12 +5,12 @@ import path from 'path'
 import Debug from 'debug'
 import { IDIDManager, TAgent } from '@veramo/core'
 import { Client, Intents, MessageEmbed, Collection } from 'discord.js'
-import { CustomCommandHandler } from './types'
+import { CommandHandler, ConfiguredAgent } from './types'
 
 const debug = Debug('discord')
 
 interface Options {
-  agent: TAgent<IDIDManager>
+  agent: ConfiguredAgent
 }
 
 export async function init(options: Options) {
@@ -22,7 +22,7 @@ export async function init(options: Options) {
     partials: ['MESSAGE', 'REACTION'],
   })
 
-  const commands = new Collection<string, CustomCommandHandler>()
+  const commands = new Collection<string, CommandHandler>()
   const commandFiles = fs
     .readdirSync(path.resolve('./build/discord/commands'))
     .filter((file) => file.endsWith('.js'))
