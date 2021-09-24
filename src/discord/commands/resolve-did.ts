@@ -13,7 +13,9 @@ module.exports = {
       option.setName('did').setDescription('Ex: did:web:sun.veramo.io').setRequired(true),
     ),
   async execute(interaction: CommandInteraction, agent: ConfiguredAgent) {
-    const { didDocument, didResolutionMetadata } = await agent.resolveDid({didUrl: interaction.options.getString('did') as string})
+    const { didDocument, didResolutionMetadata } = await agent.resolveDid({
+      didUrl: interaction.options.getString('did') as string,
+    })
     if (didResolutionMetadata.error) {
       await interaction.reply(didResolutionMetadata.error)
     } else {

@@ -1,6 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Channel, CommandInteraction, Guild, MessageEmbed, TextChannel } from 'discord.js'
 import { CommandHandler, ConfiguredAgent } from '../types'
+import { getMessageEmbedFromVC } from '../utils/kudos'
 import Debug from 'debug'
 
 const debug = Debug('discord:kudos')
@@ -18,10 +19,10 @@ module.exports = {
   async execute(interaction: CommandInteraction, agent: ConfiguredAgent) {
     // console.dir(interaction, { depth: 10 })
 
-    if (!interaction.inGuild()) return;
+    if (!interaction.inGuild()) return
 
     const { user, client, channelId, guildId } = interaction
-    const channel = await client.channels.fetch(channelId) as TextChannel
+    const channel = (await client.channels.fetch(channelId)) as TextChannel
     const guild = client.guilds.cache.get(guildId) as Guild
     const recipient = interaction.options.getUser('to')
     const kudos = interaction.options.getString('kudos')
@@ -36,12 +37,12 @@ module.exports = {
 
     const issuer = await agent.didManagerGetOrCreate({
       provider: 'did:ethr',
-      alias: user.id
+      alias: user.id,
     })
 
     const holder = await agent.didManagerGetOrCreate({
       provider: 'did:ethr',
-      alias: recipient.id
+      alias: recipient.id,
     })
 
     const credentialSubject = {
@@ -53,12 +54,19 @@ module.exports = {
       },
       guild: {
         id: guild.id,
-        name: guild.name
+        name: guild.name,
+        avatar: guild.iconURL({ format: 'png' }) || '',
       },
+      author: {
+        name: user.username,
+        avatar: user.avatarURL(),
+      },
+      name: recipient.username,
+      avatar: recipient.avatarURL({ format: 'png' }),
       kudos: kudos,
     }
 
-    await agent.createVerifiableCredential({
+    const vc = await agent.createVerifiableCredential({
       save: true,
       proofFormat: 'jwt',
       credential: {
@@ -70,27 +78,15 @@ module.exports = {
       },
     })
 
-    const publicEmbed = new MessageEmbed()
-      .setColor('#73C394')
-      .setAuthor(user.username, user.displayAvatarURL())
-      .setTitle('🏆 Kudos to ' + recipient.username)
-      .setDescription(kudos)
-      .setThumbnail(recipient.displayAvatarURL())
+    const publicEmbed = getMessageEmbedFromVC(vc, false)
 
     // Sending this in a DM
-    const privateEmbed = new MessageEmbed()
-      .setColor('#73C394')
-      .setAuthor(user.username, user.displayAvatarURL())
-      .setTitle('🏆 Kudos to ' + recipient.username)
-      .setDescription(kudos)
-      .setThumbnail(recipient.displayAvatarURL())
-      .setFooter(`${guild.name} #${channel?.name}`, guild.iconURL({format: 'png'}) || '')
-      .setTimestamp()
+    const privateEmbed = getMessageEmbedFromVC(vc, true)
 
     try {
       await recipient.send({
         content: 'You received kudos',
-        embeds: [privateEmbed]
+        embeds: [privateEmbed],
       })
     } catch (e) {
       //
@@ -99,7 +95,5 @@ module.exports = {
     await interaction.reply({
       embeds: [publicEmbed],
     })
-
-
   },
 } as CommandHandler
