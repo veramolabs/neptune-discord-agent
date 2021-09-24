@@ -17,7 +17,7 @@ module.exports = {
       option.setName('kudos').setDescription('Ex: For being so awesome!').setRequired(true),
     ),
   async execute(interaction: CommandInteraction, agent: ConfiguredAgent) {
-    // console.dir(interaction, { depth: 10 })
+    //console.dir(interaction, { depth: 10 })
 
     if (!interaction.inGuild()) return
 
@@ -59,10 +59,10 @@ module.exports = {
       },
       author: {
         name: user.username,
-        avatar: user.avatarURL(),
+        avatar: user.avatarURL({ format: 'png' }) || '',
       },
       name: recipient.username,
-      avatar: recipient.avatarURL({ format: 'png' }),
+      avatar: recipient.avatarURL({ format: 'png' }) || '',
       kudos: kudos,
     }
 
