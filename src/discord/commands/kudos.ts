@@ -1,7 +1,7 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
 import { Channel, CommandInteraction, Guild, MessageEmbed, TextChannel } from 'discord.js'
 import { CommandHandler, ConfiguredAgent } from '../types'
-import { getMessageEmbedFromVC } from '../utils/kudos'
+import { getMessageEmbedFromVC } from '../utils/embeds'
 import Debug from 'debug'
 
 const debug = Debug('discord:kudos')
