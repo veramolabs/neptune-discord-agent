@@ -4,7 +4,7 @@ import { CommandHandler, ConfiguredAgent } from '../types'
 import { getMessageEmbedFromVC } from '../utils/kudos'
 import Debug from 'debug'
 
-const debug = Debug('discord:kudos')
+const debug = Debug('discord:resume')
 
 module.exports = {
   data: new SlashCommandBuilder().setName('resume').setDescription('Show members\'s resume')
