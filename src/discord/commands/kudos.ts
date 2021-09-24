@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { Channel, CommandInteraction, Guild, MessageEmbed } from 'discord.js'
+import { Channel, CommandInteraction, Guild, MessageEmbed, TextChannel } from 'discord.js'
 import { CommandHandler, ConfiguredAgent } from '../types'
 import Debug from 'debug'
 
@@ -21,7 +21,7 @@ module.exports = {
     if (!interaction.inGuild()) return;
 
     const { user, client, channelId, guildId } = interaction
-    const channel = await client.channels.fetch(channelId)
+    const channel = await client.channels.fetch(channelId) as TextChannel
     const guild = client.guilds.cache.get(guildId) as Guild
     const recipient = interaction.options.getUser('to')
     const kudos = interaction.options.getString('kudos')
@@ -34,6 +34,42 @@ module.exports = {
       return await interaction.reply('Why are you thanking?')
     }
 
+    const issuer = await agent.didManagerGetOrCreate({
+      provider: 'did:ethr',
+      alias: user.id
+    })
+
+    const holder = await agent.didManagerGetOrCreate({
+      provider: 'did:ethr',
+      alias: recipient.id
+    })
+
+    const credentialSubject = {
+      id: holder.did,
+      channel: {
+        id: channel.id,
+        name: channel.name,
+        nsfw: channel.nsfw,
+      },
+      guild: {
+        id: guild.id,
+        name: guild.name
+      },
+      kudos: kudos,
+    }
+
+    await agent.createVerifiableCredential({
+      save: true,
+      proofFormat: 'jwt',
+      credential: {
+        '@context': ['https://www.w3.org/2018/credentials/v1'],
+        type: ['VerifiableCredential', 'Kudos'],
+        issuer: { id: issuer.did },
+        issuanceDate: new Date().toISOString(),
+        credentialSubject,
+      },
+    })
+
     const publicEmbed = new MessageEmbed()
       .setColor('#73C394')
       .setAuthor(user.username, user.displayAvatarURL())
@@ -41,13 +77,13 @@ module.exports = {
       .setDescription(kudos)
       .setThumbnail(recipient.displayAvatarURL())
 
+    // Sending this in a DM
     const privateEmbed = new MessageEmbed()
       .setColor('#73C394')
       .setAuthor(user.username, user.displayAvatarURL())
       .setTitle('🏆 Kudos to ' + recipient.username)
       .setDescription(kudos)
       .setThumbnail(recipient.displayAvatarURL())
-      //@ts-ignore
       .setFooter(`${guild.name} #${channel?.name}`, guild.iconURL({format: 'png'}) || '')
       .setTimestamp()
 
