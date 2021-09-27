@@ -43,6 +43,7 @@ export const getAttendanceEmbedFromVC = (vc: any, details = false): MessageEmbed
     .setThumbnail(vc.credentialSubject.avatar)
     .setImage(vc.credentialSubject.event.picture)
 
+
   if (details) {
     embed
       .setFooter(
@@ -59,7 +60,7 @@ export const getAwardEmbedFromVC = (vc: any, details = false): MessageEmbed => {
   const embed = new MessageEmbed()
     .setColor('#73C394')
     .setAuthor(vc.credentialSubject.author.name, vc.credentialSubject.author.avatar)
-    .setTitle(`${vc.credentialSubject.emoji} ${vc.credentialSubject.award}`)
+    .setTitle(`Award: ${vc.credentialSubject.emoji} ${vc.credentialSubject.award}`)
     .setDescription(vc.credentialSubject.name)
     .setThumbnail(vc.credentialSubject.avatar)
 
