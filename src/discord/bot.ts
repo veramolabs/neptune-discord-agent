@@ -4,7 +4,7 @@ import fs from 'fs'
 import path from 'path'
 import Debug from 'debug'
 import { IDIDManager, TAgent } from '@veramo/core'
-import { Client, Intents, MessageEmbed, Collection } from 'discord.js'
+import { Client, Intents, MessageEmbed, Collection, MessageAttachment } from 'discord.js'
 import { CommandHandler, ConfiguredAgent } from './types'
 
 const debug = Debug('discord')
@@ -49,6 +49,16 @@ export async function init(options: Options) {
       })
     }
   })
+
+  // client.on('interactionCreate', interaction => {
+  //   if (!interaction.isButton()) return;
+  //   console.dir(interaction, {depth: 10});
+  //   if (interaction.customId === 'export') {
+  //     const file = Buffer.from('key: value')
+  //     const attachment = new MessageAttachment(file, 'verifiable-credential.yaml')
+  //     interaction.update({files: [attachment]})
+  //   }
+  // });
 
   client.once('ready', async () => {
     if (!process.env.DISCORD_BOT_DID_ALIAS) throw Error('DISCORD_BOT_DID_ALIAS is missing')

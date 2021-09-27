@@ -1,21 +1,24 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { Channel, CommandInteraction, Guild, MessageEmbed, TextChannel, Message, MessageAttachment, MessageActionRow, MessageButton } from 'discord.js'
+import { Channel, CommandInteraction, Guild, MessageActionRow, MessageAttachment, MessageButton, MessageEmbed, TextChannel } from 'discord.js'
 import { CommandHandler, ConfiguredAgent } from '../types'
 import { getMessageEmbedFromVC } from '../utils/embeds'
 import Debug from 'debug'
 import yaml from 'yaml'
 
-const debug = Debug('discord:kudos')
+const debug = Debug('discord:award')
 
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('kudos')
-    .setDescription('Issues kudos credential')
+    .setName('award')
+    .setDescription('Give out an award')
     .addUserOption((option) =>
-      option.setName('to').setDescription('Who are you giving kudos to?').setRequired(true),
+      option.setName('to').setDescription('Who are you giving out award to?').setRequired(true),
     )
     .addStringOption((option) =>
-      option.setName('kudos').setDescription('Ex: For being so awesome!').setRequired(true),
+      option.setName('award').setDescription('Ex: Member of the week!').setRequired(true),
+    )
+    .addStringOption((option) =>
+      option.setName('emoji').setDescription(':trophy:').setRequired(true),
     ),
   async execute(interaction: CommandInteraction, agent: ConfiguredAgent) {
     //console.dir(interaction, { depth: 10 })
@@ -26,14 +29,19 @@ module.exports = {
     const channel = (await client.channels.fetch(channelId)) as TextChannel
     const guild = client.guilds.cache.get(guildId) as Guild
     const recipient = interaction.options.getUser('to')
-    const kudos = interaction.options.getString('kudos')
+    const award = interaction.options.getString('award')
+    const emoji = interaction.options.getString('emoji')
 
     if (!recipient) {
-      return await interaction.reply('Who are you thanking?')
+      return await interaction.reply('Who are you giving out award to?')
     }
 
-    if (!kudos) {
-      return await interaction.reply('Why are you thanking?')
+    if (!award) {
+      return await interaction.reply('What award are you giving out?')
+    }
+
+    if (!emoji) {
+      return await interaction.reply('What emoji symbolizes the award?')
     }
 
     const issuer = await agent.didManagerGetOrCreate({
@@ -47,37 +55,36 @@ module.exports = {
     })
 
     const credentialSubject = {
+      award,
+      emoji,
       name: recipient.username,
-      kudos: kudos,
       author: {
         name: user.username,
         avatar: user.avatarURL({ format: 'png' }) || '',
       },
       channel: {
-        id: channel.id,
         name: channel.name,
+        id: channel.id,
         nsfw: channel.nsfw,
       },
       guild: {
-        id: guild.id,
         name: guild.name,
+        id: guild.id,
         avatar: guild.iconURL({ format: 'png' }) || '',
       },
-      avatar: recipient.avatarURL({ format: 'png' }) || '',
       id: holder.did,
+      avatar: recipient.avatarURL({ format: 'png' }) || '',
     }
-
 
     const vc = await agent.createVerifiableCredential({
       save: true,
       proofFormat: 'jwt',
       credential: {
-        id: interaction.id,
-        credentialSubject,
+        '@context': ['https://www.w3.org/2018/credentials/v1'],
+        type: ['VerifiableCredential', 'Award'],
         issuer: { id: issuer.did },
         issuanceDate: new Date().toISOString(),
-        type: ['VerifiableCredential', 'Kudos'],
-        '@context': ['https://www.w3.org/2018/credentials/v1'],
+        credentialSubject,
       },
     })
 
@@ -109,6 +116,7 @@ module.exports = {
         files: [attachment],
         components: [row]
       })
+
     } catch (e) {
       //
     }

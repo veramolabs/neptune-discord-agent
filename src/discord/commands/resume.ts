@@ -1,5 +1,5 @@
 import { SlashCommandBuilder } from '@discordjs/builders'
-import { Channel, CommandInteraction, Guild, MessageEmbed, TextChannel } from 'discord.js'
+import { Channel, CommandInteraction, Guild, MessageActionRow, MessageButton, MessageEmbed, TextChannel } from 'discord.js'
 import { CommandHandler, ConfiguredAgent } from '../types'
 import { getMessageEmbedFromVC } from '../utils/embeds'
 import Debug from 'debug'
@@ -26,16 +26,31 @@ module.exports = {
 
     const credentials = await agent.dataStoreORMGetVerifiableCredentials({
       where: [{ column: 'subject', value: [holder.did] }],
+      order: [ { column: 'issuanceDate', direction: 'DESC' }]
     })
 
-    const embeds = credentials.map(({ verifiableCredential }) =>
+    const embeds = credentials.slice(0,5).map(({ verifiableCredential }) =>
       getMessageEmbedFromVC(verifiableCredential, true),
     )
+
+    const components = []
+    if (credentials.length > 5) {
+      //TODO handle this button
+      components.push(
+        new MessageActionRow()
+			    .addComponents(
+          new MessageButton()
+          .setCustomId('next')
+          .setLabel('Next')
+          .setStyle('PRIMARY')
+        ))
+    }
 
     if (embeds.length > 0) {
       await interaction.reply({
         embeds,
         ephemeral: true,
+        components
       })
     } else {
       await interaction.reply({
