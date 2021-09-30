@@ -4,6 +4,7 @@ import { CommandHandler, ConfiguredAgent } from '../types'
 import Debug from 'debug'
 import Canvas from 'canvas'
 import QRCode from '@propps/qrcode'
+import WalletConnect from '@walletconnect/client'
 
 const debug = Debug('discord:connect')
 
@@ -15,18 +16,58 @@ module.exports = {
       option.setName('did').setDescription('did:ens:vitalik.eth').setRequired(false),
     ),
   async execute(interaction: CommandInteraction, agent: ConfiguredAgent) {
-    
-    const dataUrl = await QRCode.toDataURL('wc:bf8b26aa-98ee-4d55-8fdc-dfa37fdbab1a@1?bridge=https%3A%2F%2Fc.bridge.walletconnect.org&key=162156420b87f84688d14d560b35cd298765f263cb7b9f16f77f490f60d87bc7')
-    const qrCodeImage = await Canvas.loadImage(dataUrl);
+    const connector = new WalletConnect({
+      bridge: 'https://bridge.walletconnect.org',
+      clientMeta: {
+        description: 'Neptune discord bot',
+        url: 'https://neptune.eu.ngrok.io',
+        icons: ['https://cdn.discordapp.com/avatars/890198780182417428/e3d08ba122ed13d2c3e59bba6817f91f.png?size=240'],
+        name: 'Neptune',
+      },
+    })
 
-    const canvas = Canvas.createCanvas(500, 500);
-		const context = canvas.getContext('2d');
-    context.drawImage(qrCodeImage, 0, 0, canvas.width, canvas.height);
+    if (!connector.connected) {
+      // create new session
+      await connector.createSession()
+    }
 
-    const attachment = new MessageAttachment(canvas.toBuffer(), 'wallet-connect.png');
+    // Subscribe to connection events
+    connector.on('connect', (error, payload) => {
+      if (error) {
+        throw error
+      }
+
+      // Get provided accounts and chainId
+      const { accounts, chainId } = payload.params[0]
+
+      const embed = new MessageEmbed()
+      .setColor('#73C394')
+      .setTitle(`Success!`)
+      .setDescription(`did:ethr:0x${chainId}:${accounts[0]}`)
+  
+      interaction.editReply({
+        embeds: [embed],
+        files: []
+      })
+    })
+
+    const dataUrl = await QRCode.toDataURL(connector.uri)
+    const qrCodeImage = await Canvas.loadImage(dataUrl)
+
+    const canvas = Canvas.createCanvas(500, 500)
+    const context = canvas.getContext('2d')
+    context.drawImage(qrCodeImage, 0, 0, canvas.width, canvas.height)
+
+    const attachment = new MessageAttachment(canvas.toBuffer(), 'wallet-connect.png')
+
+    const embed = new MessageEmbed()
+    .setColor('#e3e5e8')
+    .setTitle('Scan this QR code with your wallet')
+    .setImage('attachment://wallet-connect.png')
 
     await interaction.reply({
-      content: '**Scan this QR code with your wallet**',
+      // content: '**Scan this QR code with your wallet**',
+      embeds: [embed],
       files: [attachment],
       ephemeral: true,
     })
