@@ -11,11 +11,12 @@
     "prettier": "prettier --write '{src, !build}/**/*.{ts,js,json,md,yml}'",
     "register-commands": "rm -rf ./build && yarn build && node ./build/discord/register-commands",
     "build": "tsc",
-    "build:watch": "tsc -b --watch"
+    "build:watch": "tsc -b --watch",
+    "ngrok": "ngrok http -subdomain=neptune -region=eu 3332"
   },
   "dependencies": {
     "@discordjs/rest": "^0.1.0-canary.0",
-    "@veramo/cli": "3.0.0",
+    "@veramo/cli": "^3.0.1-next.9",
     "discord-api-types": "^0.23.1",
     "discord.js": "^13.1.0",
     "dotenv": "^10.0.0",

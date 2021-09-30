@@ -37,13 +37,11 @@ module.exports = {
     }
 
     const issuer = await agent.didManagerGetOrCreate({
-      provider: 'did:ethr',
-      alias: user.id,
+      alias: process.env.DISCORD_BOT_DID_ALIAS + ':discord:' + user.id,
     })
 
     const holder = await agent.didManagerGetOrCreate({
-      provider: 'did:ethr',
-      alias: recipient.id,
+      alias: process.env.DISCORD_BOT_DID_ALIAS + ':discord:' + recipient.id,
     })
 
     const credentialSubject = {

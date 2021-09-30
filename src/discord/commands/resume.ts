@@ -20,8 +20,7 @@ module.exports = {
     const memberId = recipient ? recipient.id : user.id
 
     const holder = await agent.didManagerGetOrCreate({
-      provider: 'did:ethr',
-      alias: memberId,
+      alias: process.env.DISCORD_BOT_DID_ALIAS + ':discord:' + memberId,
     })
 
     const credentials = await agent.dataStoreORMGetVerifiableCredentials({

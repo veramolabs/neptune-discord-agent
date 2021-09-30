@@ -3,9 +3,9 @@ config()
 import fs from 'fs'
 import path from 'path'
 import Debug from 'debug'
-import { IDIDManager, TAgent } from '@veramo/core'
-import { Client, Intents, MessageEmbed, Collection, MessageAttachment } from 'discord.js'
+import { Collection } from 'discord.js'
 import { CommandHandler, ConfiguredAgent } from './types'
+import { client } from './client'
 
 const debug = Debug('discord')
 
@@ -16,11 +16,6 @@ interface Options {
 export async function init(options: Options) {
   if (!process.env.DISCORD_TOKEN) throw Error('DISCORD_TOKEN is missing')
   if (!options.agent) throw Error('[init] Agent is required')
-
-  const client = new Client({
-    intents: [Intents.FLAGS.GUILDS, Intents.FLAGS.GUILD_MESSAGES, Intents.FLAGS.GUILD_MESSAGE_REACTIONS],
-    partials: ['MESSAGE', 'REACTION'],
-  })
 
   const commands = new Collection<string, CommandHandler>()
   const commandFiles = fs
@@ -65,7 +60,7 @@ export async function init(options: Options) {
 
     const bot = await options.agent.didManagerGetOrCreate({
       alias: process.env.DISCORD_BOT_DID_ALIAS,
-      provider: 'did:ethr',
+      provider: 'did:web',
     })
 
     debug(bot.did, client?.user?.tag, 'is ready')

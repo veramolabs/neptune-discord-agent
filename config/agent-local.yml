@@ -1,7 +1,7 @@
 version: 3.0
 
 constants:
-  baseUrl: http://localhost:3332
+  baseUrl: https://neptune.eu.ngrok.io
   port: 3332
   secretKey: 29739248cad1bd1a0fc4d9b75cd4d2990de535baf5caadfdf8d8f86664aa830c
   databaseFile: ./db/database.sqlite
@@ -91,6 +91,17 @@ server:
 
     # DID Documents
     - - $require: "@veramo/remote-server?t=function#WebDidDocRouter"
+        $args:
+          - services:
+            - id: 'msg'
+              type: Messaging
+              serviceEndpoint: 'https://neptune.eu.ngrok.io/messaging'
+              description: Handles incoming POST messages
+            - id: 'msg-didcomm'
+              type: DIDCommMessaging
+              serviceEndpoint: 'https://neptune.eu.ngrok.io/messaging'
+              description: Handles incoming DIDComm messages
+
 
     # API base path
     - - /messaging
@@ -219,7 +230,7 @@ didManager:
         $require: "@veramo/data-store#DIDStore"
         $args:
           - $ref: /dbConnection
-      defaultProvider: did:ethr:rinkeby
+      defaultProvider: did:web
       providers:
         did:ethr:
           $require: "@veramo/did-provider-ethr#EthrDIDProvider"
@@ -297,3 +308,4 @@ agent:
         - $require: "@veramo/data-store#DataStoreORM"
           $args:
             - $ref: /dbConnection
+        - $require: "./build/discord/message-mediator#DiscordMessageMediator"

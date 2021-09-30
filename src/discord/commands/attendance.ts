@@ -41,13 +41,11 @@ module.exports = {
     const members = channel.members
     members.each(async (member) => {
       const issuer = await agent.didManagerGetOrCreate({
-        provider: 'did:ethr',
         alias: process.env.DISCORD_BOT_DID_ALIAS as string,
       })
 
       const holder = await agent.didManagerGetOrCreate({
-        provider: 'did:ethr',
-        alias: member.user.id,
+        alias: process.env.DISCORD_BOT_DID_ALIAS + ':discord:' + member.user.id,
       })
 
       const credentialSubject = {
