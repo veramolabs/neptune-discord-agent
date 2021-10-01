@@ -6,6 +6,7 @@ import Canvas from 'canvas'
 import QRCode from '@propps/qrcode'
 import WalletConnect from '@walletconnect/client'
 
+
 const debug = Debug('discord:connect')
 
 module.exports = {
@@ -46,29 +47,17 @@ module.exports = {
       .setDescription(`did:ethr:0x${chainId}:${accounts[0]}`)
   
       interaction.editReply({
-        embeds: [embed],
-        files: []
+        embeds: [embed]
       })
     })
-
-    const dataUrl = await QRCode.toDataURL(connector.uri)
-    const qrCodeImage = await Canvas.loadImage(dataUrl)
-
-    const canvas = Canvas.createCanvas(500, 500)
-    const context = canvas.getContext('2d')
-    context.drawImage(qrCodeImage, 0, 0, canvas.width, canvas.height)
-
-    const attachment = new MessageAttachment(canvas.toBuffer(), 'wallet-connect.png')
 
     const embed = new MessageEmbed()
     .setColor('#e3e5e8')
     .setTitle('Scan this QR code with your wallet')
-    .setImage('attachment://wallet-connect.png')
+    .setImage('https://neptune.eu.ngrok.io/qrcode/' + encodeURIComponent(connector.uri))
 
     await interaction.reply({
-      // content: '**Scan this QR code with your wallet**',
       embeds: [embed],
-      files: [attachment],
       ephemeral: true,
     })
   },

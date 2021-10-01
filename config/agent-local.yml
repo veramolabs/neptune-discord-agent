@@ -141,6 +141,9 @@ server:
           - swaggerOptions:
               url: "/open-api.json"
 
+    - - /qrcode
+      - $require: ./build/discord/qrcode?t=function#QrCodeRouter
+
   # Execute during server initialization
   init:
     - $require: "@veramo/remote-server?t=function#createDefaultDid"
