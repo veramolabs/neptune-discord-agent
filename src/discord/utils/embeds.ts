@@ -9,8 +9,10 @@ export const getMessageEmbedFromVC = (vc: VerifiableCredential, details = false)
       return getAttendanceEmbedFromVC(vc, details)
     case 'VerifiableCredential,Award':
       return getAwardEmbedFromVC(vc, details)
-    default:
-      return new MessageEmbed().setTitle('Unknown VC type')
+    case 'VerifiableCredential,Role':
+      return getRoleEmbedFromVC(vc, details)
+      default:
+      return new MessageEmbed().setTitle(vc.type.join(',')).setDescription(JSON.stringify(vc.credentialSubject))
   }
 }
 
@@ -68,6 +70,23 @@ export const getAwardEmbedFromVC = (vc: any, details = false): MessageEmbed => {
     embed
       .setFooter(
         `${vc.credentialSubject.guild.name} #${vc.credentialSubject.channel.name}`,
+        vc.credentialSubject.guild.avatar,
+      )
+      .setTimestamp(vc.issuanceDate)
+  }
+
+  return embed
+}
+
+export const getRoleEmbedFromVC = (vc: any, details = false): MessageEmbed => {
+  const embed = new MessageEmbed()
+    .setColor(vc.credentialSubject.color)
+    .setTitle(`Role: ${vc.credentialSubject.name}`)
+
+  if (details) {
+    embed
+      .setFooter(
+        `${vc.credentialSubject.guild.name}`,
         vc.credentialSubject.guild.avatar,
       )
       .setTimestamp(vc.issuanceDate)
