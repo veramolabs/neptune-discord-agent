@@ -4,12 +4,10 @@ import { CommandHandler, ConfiguredAgent } from '../types'
 import { getMessageEmbedFromVC } from '../utils/embeds'
 import Debug from 'debug'
 
-const debug = Debug('discord:resume')
-
 module.exports = {
   data: new SlashCommandBuilder()
-    .setName('resume')
-    .setDescription("Show members's resume")
+    .setName('credentials')
+    .setDescription("Show members credentials")
     .addUserOption((option) =>
       option.setName('member').setDescription('Credential subject').setRequired(false),
     ),
@@ -47,13 +45,14 @@ module.exports = {
 
     if (embeds.length > 0) {
       await interaction.reply({
+        content: holder.did,
         embeds,
         ephemeral: true,
         components
       })
     } else {
       await interaction.reply({
-        content: "You don't have any credentials issued to you",
+        content: holder.did + "\n\nYou don't have any credentials issued to you",
         ephemeral: true,
       })
     }
