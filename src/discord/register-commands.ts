@@ -24,13 +24,13 @@ const rest = new REST({ version: '9' }).setToken(process.env.DISCORD_TOKEN)
 ;(async () => {
   try {
     await rest.put(
-      Routes.applicationCommands(
-        process.env.DISCORD_CLIENT_ID as string
-      ),
-      // Routes.applicationGuildCommands(
-      //   process.env.DISCORD_CLIENT_ID as string,
-      //   process.env.DISCORD_GUILD_ID as string,
+      // Routes.applicationCommands(
+      //   process.env.DISCORD_CLIENT_ID as string
       // ),
+      Routes.applicationGuildCommands(
+        process.env.DISCORD_CLIENT_ID as string,
+        process.env.DISCORD_GUILD_ID as string,
+      ),
       { body: commands },
     )
 

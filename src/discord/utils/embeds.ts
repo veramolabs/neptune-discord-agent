@@ -1,5 +1,6 @@
 import { MessageEmbed } from 'discord.js'
 import { VerifiableCredential } from '@veramo/core'
+import { IMessage } from '@veramo/core'
 
 export const getMessageEmbedFromVC = (vc: VerifiableCredential, details = false): MessageEmbed => {
   switch (vc.type.join(',')) {
@@ -90,6 +91,19 @@ export const getRoleEmbedFromVC = (vc: any, details = false): MessageEmbed => {
         vc.credentialSubject.guild.avatar,
       )
       .setTimestamp(vc.issuanceDate)
+  }
+
+  return embed
+}
+
+
+export const getEmbedFromMessage = (message: IMessage, details = false): MessageEmbed => {
+  const embed = new MessageEmbed()
+    .setTitle(`Message type: ${message.type}`)
+
+  if (details && message.createdAt) {
+    embed
+      .setTimestamp(parseInt(message.createdAt, 10))
   }
 
   return embed
